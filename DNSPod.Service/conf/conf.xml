@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<DNSPod.Service>
+  <Time value="10"/>
+  <LoginDNSPod>
+    <id>123</id>
+    <token>abc123</token>
+  </LoginDNSPod>
+  <RecordList>
+    <Record sub_domain="www" domain="domain.com" ip="$ip"/>
+  </RecordList>
+</DNSPod.Service>
