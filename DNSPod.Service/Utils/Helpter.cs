@@ -54,8 +54,8 @@ namespace DNSPod.Service
             using (var client = new HttpClient())
             {
                 HttpContent content = new StringContent(data, Encoding.UTF8, "application/x-www-form-urlencoded");
-                var result = client.PostAsync(url, content).Result;
                 client.DefaultRequestHeaders.Add("User-Agent", "DNSPod.Service/V1.0 (uhnnamed@qq.com)");
+                var result = client.PostAsync(url, content).Result;
                 if (result.IsSuccessStatusCode)
                 {
                     string json = result.Content.ReadAsStringAsync().Result;

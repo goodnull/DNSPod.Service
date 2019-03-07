@@ -6,6 +6,7 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading;
@@ -30,12 +31,25 @@ namespace DNSPod.Service
 
         protected override void OnStart(string[] args)
         {
-            InitData();
-            while (true)
+            try
             {
-                ReferData();
-                Thread.Sleep(Time);
+                InitData();
+                new Thread(delegate ()
+                {
+                    while (true)
+                    {
+                        ReferData();
+                        Thread.Sleep(Time);
+                    }
+                }).Start();
+                Thread.Sleep(1000);
             }
+            catch (Exception ex)
+            {
+                Helpter.WriteLineLog(logPath, LogCategory.Config, ex.Message);
+                throw;
+            }
+
         }
 
         protected override void OnStop()
@@ -58,7 +72,9 @@ namespace DNSPod.Service
                     if (json.status.code != 1)//操作失败，立刻结束操作
                     {
                         Helpter.WriteLineLog(logPath, LogCategory.Api, "登陆认证失败,轮询已停止");
-                        Thread.CurrentThread.Abort();
+                        this.Stop();
+                        return;
+                        //Thread.CurrentThread.Abort();
                     }
                     item._ip = item.ip;
                     int recordId = 0;
@@ -66,7 +82,7 @@ namespace DNSPod.Service
                     {
                         if (json.records[0].value == item.ip)//与记录中的ip一致，不需要操作
                         {
-                            Helpter.WriteLineLog(logPath, LogCategory.Api, $"[{item.subdomain}.{item.domain}] 记录值 [{item.ip}] 与服务器一致不需要修改");
+                            Helpter.WriteLineLog(logPath, LogCategory.Api, $"[{item.subdomain}.{item.domain}] 记录值 [{item.ip}] 与服务器记录一致不需要修改");
                             continue;
                         }
                         recordId = json.records[0].id;
@@ -86,19 +102,22 @@ namespace DNSPod.Service
 
         void InitData()
         {
-
-            currentPath = Directory.GetCurrentDirectory() + "\\";
-            logPath = $"{currentPath}logs\\";
-            string xml = currentPath + "conf\\conf.xml";
-            Directory.CreateDirectory(logPath);
-            Helpter.WriteLineLog(logPath, LogCategory.Config, "-------------------------------");
-            if (!File.Exists(xml))
-            {
-                Helpter.WriteLineLog(logPath, LogCategory.Config, $"配置文件不存在{xml}");
-                throw new Exception($"配置文件不存在{xml}");
-            }
             try
             {
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                //currentPath = Directory.GetCurrentDirectory() + "\\";
+                //currentPath=System.Environment.CurrentDirectory;
+                currentPath = AppDomain.CurrentDomain.BaseDirectory;
+                logPath = $"{currentPath}logs\\";
+                string xml = currentPath + "conf\\conf.xml";
+                Directory.CreateDirectory(logPath);
+                Helpter.WriteLineLog(logPath, LogCategory.Config, "-------------------------------" + currentPath);
+                if (!File.Exists(xml))
+                {
+                    Helpter.WriteLineLog(logPath, LogCategory.Config, $"配置文件不存在{xml}");
+                    throw new Exception($"配置文件不存在{xml}");
+                }
+
                 XmlDocument doc = new XmlDocument();
                 doc.Load(xml);
                 var node = doc.SelectSingleNode("DNSPod.Service");
