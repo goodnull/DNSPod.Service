@@ -5,6 +5,7 @@
   - 会检测登陆id与token能否登陆成功，登陆验证失败时，服务不能正常启动
   - 会检测从ip138获取的ip与dnspod已设置的记录值是否一致，防止重复设置相同记录被禁用api
 - 基于.NET Framework 4.5
+  - .NET 4.5下载地址： [在线安装包](http://go.microsoft.com/fwlink/?LinkId=225704) [离线安装包](http://go.microsoft.com/fwlink/?LinkId=225702)
 - 基础信息可配置
 
 ## 配置说明
