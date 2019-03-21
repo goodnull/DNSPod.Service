@@ -6,6 +6,6 @@
     <token>abc123</token>
   </LoginDNSPod>
   <RecordList>
-    <Record sub_domain="www" domain="domain.com" ip="$ip"/>
+    <Record sub_domain="www" domain="domain.com"/>
   </RecordList>
 </DNSPod.Service>

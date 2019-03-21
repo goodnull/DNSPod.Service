@@ -1,16 +1,10 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.ServiceProcess;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace DNSPod.Service
@@ -28,7 +22,6 @@ namespace DNSPod.Service
         static List<Record> listRecord = new List<Record>();
         static int Time = 0;
         static string ip = string.Empty;
-
         protected override void OnStart(string[] args)
         {
             try
@@ -49,14 +42,11 @@ namespace DNSPod.Service
                 Helpter.WriteLineLog(logPath, LogCategory.Config, ex.Message);
                 throw;
             }
-
         }
 
         protected override void OnStop()
         {
-
         }
-
         void ReferData()
         {
             try
@@ -64,10 +54,12 @@ namespace DNSPod.Service
                 string _ip = Helpter.GetPublicIP();
                 foreach (Record item in listRecord)
                 {
-                    if (item.ip == "$ip")
-                        item.ip = _ip;
+                    item.ip = _ip;
                     if (item.ip == item._ip)
-                        continue;
+                    {
+                        Helpter.WriteLineLog(logPath, LogCategory.Api, $"上次轮训ip[{item._ip}]与本次获取ip:[{item.ip}]一致");
+                        return;
+                    }
                     var json = Helpter.RecordList(login.login_token, item.domain, item.subdomain);
                     if (json.status.code != 1)//操作失败，立刻结束操作
                     {
@@ -111,7 +103,8 @@ namespace DNSPod.Service
                 logPath = $"{currentPath}logs\\";
                 string xml = currentPath + "conf\\conf.xml";
                 Directory.CreateDirectory(logPath);
-                Helpter.WriteLineLog(logPath, LogCategory.Config, "-------------------------------" + currentPath);
+                Helpter.WriteLineLog(logPath, LogCategory.Config, "-------------------------------");
+                Helpter.WriteLineLog(logPath, LogCategory.Config, currentPath);
                 if (!File.Exists(xml))
                 {
                     Helpter.WriteLineLog(logPath, LogCategory.Config, $"配置文件不存在{xml}");
@@ -139,10 +132,8 @@ namespace DNSPod.Service
                     {
                         subdomain = item.Attributes["sub_domain"].Value,
                         domain = item.Attributes["domain"].Value,
-                        ip = item.Attributes["ip"].Value,
                     });
                 }
-                //Helpter.WriteLineLog(logPath, LogCategory.Config, "读取完成");
             }
             catch (Exception ex)
             {

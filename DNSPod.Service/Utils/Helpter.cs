@@ -13,6 +13,19 @@ using Newtonsoft.Json.Linq;
 
 namespace DNSPod.Service
 {
+    public class Dnsapi
+    {
+        private const string ApiUrl = "https://dnsapi.cn/";
+
+        public const string List = ApiUrl + "Record.List";
+
+        public const string Create = ApiUrl + "Record.Create";
+
+        public const string Ddns = ApiUrl + "Record.Ddns";
+
+        public const string Modify = ApiUrl + "Record.Modify";
+    }
+
     public class Helpter
     {
         public static string GetPublicIP()
@@ -23,24 +36,24 @@ namespace DNSPod.Service
 
         public static dynamic RecordList(string token, string domain, string sub_domain)
         {
-            return Post("https://dnsapi.cn/Record.List", $"{CommonParam(token)}&domain={domain}&sub_domain={sub_domain}");
+            return Post(Dnsapi.List, $"{CommonParam(token)}&domain={domain}&sub_domain={sub_domain}");
         }
 
         public static dynamic RecordCreate(string token, string domain, string sub_domain, string value, string record_type = "A", string record_line_id = "0")
         {
-            dynamic result = Post("https://dnsapi.cn/Record.Create", $"{CommonParam(token)}&domain={domain}&sub_domain={sub_domain}&value={value}&record_type={record_type}&record_line_id={record_line_id}");
+            dynamic result = Post(Dnsapi.Create, $"{CommonParam(token)}&domain={domain}&sub_domain={sub_domain}&value={value}&record_type={record_type}&record_line_id={record_line_id}");
             return Convert.ToInt32(result.status.code) == 1 ? Convert.ToInt32(result.record.id) : -1;
         }
 
         public static dynamic RecordDdns(string token, int record_id, string domain, string sub_domain, string value, string record_line = "默认")
         {
-            return Post("https://dnsapi.cn/Record.Ddns",
+            return Post(Dnsapi.Ddns,
                 $"{CommonParam(token)}&record_id={record_id}&domain={domain}&sub_domain={sub_domain}&value={value}&record_line={record_line}");
         }
 
         public static dynamic RecordModify(string token, int record_id, string domain, string sub_domain, string value, int ttl = 100, string record_line = "默认", string record_type = "A", string record_line_id = "0")
         {
-            return Post("https://dnsapi.cn/Record.Modify",
+            return Post(Dnsapi.Modify,
                 $"{CommonParam(token)}&record_id={record_id}&domain={domain}&sub_domain={sub_domain}&value={value}&record_line={record_line}&record_type={record_type}&record_line_id={record_line_id}");
         }
 
@@ -68,10 +81,15 @@ namespace DNSPod.Service
 
         public static void WriteLineLog(string path, string category, string log)
         {
-            using (StreamWriter sw = new StreamWriter($"{path}{DateTime.Now.ToString("yyyy-MM-dd")}.txt", true))
+            if (Environment.UserInteractive)
             {
-                sw.WriteLine($"{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")} [{category}] {log}");
+                Console.WriteLine(($"{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")} [{category}] {log}"));
             }
+            else
+                using (StreamWriter sw = new StreamWriter($"{path}{DateTime.Now.ToString("yyyy-MM-dd")}.txt", true))
+                {
+                    sw.WriteLine($"{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")} [{category}] {log}");
+                }
         }
 
         /// <summary>
