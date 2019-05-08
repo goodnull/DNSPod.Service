@@ -1,6 +1,7 @@
 # DNSPod.Service
 
 ## 项目说明
+- 找遍了各个地方，发现基于dnspod的ddns软件都只能运行在linux的shell脚本，于是自己动手写了这个
 - 使用DNSPod官方API接口
   - 会检测登陆id与token能否登陆成功，登陆验证失败时，服务不能正常启动
   - 会检测从ip138获取的ip与dnspod已设置的记录值是否一致，防止重复设置相同记录被禁用api
