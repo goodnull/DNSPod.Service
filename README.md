@@ -9,6 +9,7 @@
   - .NET 4.5下载地址： [在线安装包](http://go.microsoft.com/fwlink/?LinkId=225704) [离线安装包](http://go.microsoft.com/fwlink/?LinkId=225702)
 
 ## 配置说明
+- 使用xml文件进行配置
 - 轮询时间，必须大于等于5，建议为10，<b>单位分钟</b>
 
 ~~~xml
